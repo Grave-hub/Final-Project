@@ -17,8 +17,9 @@ kangaroo = "final_project_cse210\game\casting\images\kangaroo.gif"
 car_right = "final_project_cse210\game\casting\images\car1.gif"
 car_left = "final_project_cse210\game\casting\images\car2.gif"
 river_log = "final_project_cse210\game\casting\images\log.gif"
+volcano = "final_project_cse210\game\casting\images\\volcano.gif"
 
-shapes = [kangaroo, car_right, car_left, river_log]
+shapes = [kangaroo, car_right, car_left, river_log, volcano]
 for shape in shapes:
     wn.register_shape(shape)
 
@@ -40,6 +41,9 @@ class Sprite():
         pen.goto(self.x, self.y)
         pen.shape(self.image)
         pen.stamp()
+    #update stuffs
+    def update(self):
+        pass
     #collision logic
     def is_collision(self, other):
         x_collision = (math.fabs(self.x - other.x) * 2) < (self.width + other.width)
@@ -50,6 +54,7 @@ class Player(Sprite):
     def __init__(self, x, y, width, height, image):
         Sprite.__init__(self, x, y, width, height, image)
         self.dx = 0
+        self.collision = False
     #keyboard controls
     def up(self):
         self.y += 45
@@ -91,12 +96,14 @@ class Logs(Sprite):
             self.x = -300
 
 player = Player(0, -200, 40, 40, kangaroo)
-car_right = Car(0, -50, 40, 20, car_right, -0.2)
-car_left = Car(0, -100, 40, 20, car_left, .2)
+car_right = Car(0, -40, 40, 20, car_right, -0.2)
+car_left = Car(0, -80, 40, 20, car_left, .2)
 log_left = Logs(0, 200, 100, 40, river_log, .1)
-log_right = Logs(0, 100, 100, 40, river_log, -.1)
+log_right = Logs(0, 80, 100, 40, river_log, -.1)
 
-sprites = [car_left, car_right, log_left, log_right]
+goal1 = Sprite(0,250, 50, 50, volcano)
+
+sprites = [car_left, car_right, log_left, log_right, goal1]
 sprites.append(player)
 
 wn.listen()
@@ -106,6 +113,7 @@ wn.onkeypress(player.left, "Left")
 wn.onkeypress(player.right, "Right")
 
 while True:
+    pen.clear()
     game_state = "game"
     if game_state == "splash":
         wn.bgpic(over_splash)
@@ -123,10 +131,14 @@ while True:
                 player.y = -200
                 wn.clear
                 game_state = "splash"
+                break
             elif isinstance(sprite, Logs):
                 player.dx = sprite.dx
+                player.collision = True
                 break
-
+    if player.y > 80 and player.collision != True:
+        player.x = 0
+        player.y = -200
     wn.update()
     pen.clear()
 
